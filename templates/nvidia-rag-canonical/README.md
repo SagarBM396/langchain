@@ -1,5 +1,5 @@
 
-# rag-nvai
+# nvidia-rag-canonical
 
 This template performs RAG using Milvus Vector Store and NVIDIA Models (Embedding and Chat).
 
@@ -34,28 +34,29 @@ pip install -U langchain_nvidia_aiplay
 To create a new LangChain project and install this as the only package, you can do:
 
 ```shell
-langchain app new my-app --package rag-nvai
+langchain app new my-app --package nvidia-rag-canonical
 ```
 
 If you want to add this to an existing project, you can just run:
 
 ```shell
-langchain app add rag-nvai
+langchain app add nvidia-rag-canonical
 ```
 
 And add the following code to your `server.py` file:
 ```python
-from rag_nvai import chain as rag_nvai_chain
+from nvidia_rag_canonical import chain as rag_nvidia_chain
 
-add_routes(app, rag_nvai_chain, path="/rag-nvai")
+add_routes(app, rag_nvidia_chain, path="/nvidia-rag")
 ```
 
 If you want to set up an ingestion pipeline, you can add the following code to your `server.py` file:
 ```python
-from rag_nvai import ingest as rag_nvai_ingest
+from rag_nvidia_canonical import ingest as rag_nvidia_ingest
 
-add_routes(app, rag_nvai_ingest, path="/rag-nvai-ingest")
+add_routes(app, rag_nvidia_ingest, path="/nvidia-rag-ingest")
 ```
+Note that for files ingested by the ingestion API, the server will need to be restarted for the newly ingested files to be accessible by the retriever.
 
 (Optional) Let's now configure LangSmith.
 LangSmith will help us trace, monitor and debug LangChain applications.
@@ -71,7 +72,7 @@ export LANGCHAIN_PROJECT=<your-project>  # if not specified, defaults to "defaul
 
 If you DO NOT already have a Milvus Vector Store you want to connect to, see `Milvus Setup` section below before proceeding.
 
-If you DO have a Milvus Vector Store you want to connect to, edit the connection details in `rag_nvai/chain.py`
+If you DO have a Milvus Vector Store you want to connect to, edit the connection details in `nvidia_rag_canonical/chain.py`
 
 If you are inside this directory, then you can spin up a LangServe instance directly by:
 
@@ -83,14 +84,14 @@ This will start the FastAPI app with a server is running locally at
 [http://localhost:8000](http://localhost:8000)
 
 We can see all templates at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-We can access the playground at [http://127.0.0.1:8000/rag-nvai/playground](http://127.0.0.1:8000/rag-nvai/playground)
+We can access the playground at [http://127.0.0.1:8000/nvidia-rag/playground](http://127.0.0.1:8000/nvidia-rag/playground)
 
 We can access the template from code with:
 
 ```python
 from langserve.client import RemoteRunnable
 
-runnable = RemoteRunnable("http://localhost:8000/rag-nvai")
+runnable = RemoteRunnable("http://localhost:8000/nvidia-rag")
 ```
 
 

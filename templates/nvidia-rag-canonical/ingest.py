@@ -4,7 +4,7 @@ import getpass
 from langchain.document_loaders import PyPDFLoader
 from langchain.vectorstores.milvus import Milvus
 from langchain_nvidia_aiplay import NVIDIAEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitter import CharacterTextSplitter
 
 if os.environ.get("NVIDIA_API_KEY", "").startswith("nvapi-"):
     print("Valid NVIDIA_API_KEY already in environment. Delete to reset")
@@ -13,7 +13,7 @@ else:
     assert nvapi_key.startswith("nvapi-"), f"{nvapi_key[:5]}... is not a valid key"
     os.environ["NVIDIA_API_KEY"] = nvapi_key
 
-# Note that if you change this, you also need to change it in `rag_nvai/chain.py`
+# Note that if you change this, you also need to change it in `nvidia_rag_canonical/chain.py`
 EMBEDDING_MODEL = "nvolveqa_40k"
 HOST = "127.0.0.1"
 PORT = "19530"
@@ -23,11 +23,11 @@ embeddings = NVIDIAEmbeddings(model=EMBEDDING_MODEL)
 
 if __name__ == "__main__":
     # Load docs
-    loader = PyPDFLoader("https://arxiv.org/pdf/2303.08774.pdf")
+    loader = PyPDFLoader("https://www.ssa.gov/news/press/factsheets/basicfact-alt.pdf")
     data = loader.load()
 
     # Split docs
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+    text_splitter = CharacterTextSplitter(chunk_size=300, chunk_overlap=100)
     docs = text_splitter.split_documents(data)
 
     # Insert the documents in Milvus Vector Store
