@@ -1,10 +1,10 @@
-import os
 import getpass
+import os
 
 from langchain.document_loaders import PyPDFLoader
+from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores.milvus import Milvus
 from langchain_nvidia_aiplay import NVIDIAEmbeddings
-from langchain.text_splitter import CharacterTextSplitter
 
 if os.environ.get("NVIDIA_API_KEY", "").startswith("nvapi-"):
     print("Valid NVIDIA_API_KEY already in environment. Delete to reset")
@@ -13,7 +13,7 @@ else:
     assert nvapi_key.startswith("nvapi-"), f"{nvapi_key[:5]}... is not a valid key"
     os.environ["NVIDIA_API_KEY"] = nvapi_key
 
-# Note that if you change this, you also need to change it in `nvidia_rag_canonical/chain.py`
+# Note: if you change this, you should also change it in `nvidia_rag_canonical/chain.py`
 EMBEDDING_MODEL = "nvolveqa_40k"
 HOST = "127.0.0.1"
 PORT = "19530"

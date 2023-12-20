@@ -1,12 +1,10 @@
-import os
 import getpass
+import os
 
 from langchain.document_loaders import PyPDFLoader
-from langchain.vectorstores.milvus import Milvus
-from langchain_nvidia_aiplay import NVIDIAEmbeddings
-from langchain_nvidia_aiplay import ChatNVIDIA
 from langchain.prompts import ChatPromptTemplate
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.vectorstores.milvus import Milvus
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.pydantic_v1 import BaseModel
 from langchain_core.runnables import (
@@ -14,11 +12,15 @@ from langchain_core.runnables import (
     RunnableParallel,
     RunnablePassthrough,
 )
+from langchain_nvidia_aiplay import ChatNVIDIA, NVIDIAEmbeddings
+
 EMBEDDING_MODEL = "nvolveqa_40k"
 CHAT_MODEL = "llama2_13b"
 HOST = "127.0.0.1"
 PORT = "19530"
 COLLECTION_NAME = "test"
+INGESTION_CHUNK_SIZE = 500
+INGESTION_CHUNK_OVERLAP = 0
 
 if os.environ.get("NVIDIA_API_KEY", "").startswith("nvapi-"):
     print("Valid NVIDIA_API_KEY already in environment. Delete to reset")
@@ -29,9 +31,10 @@ else:
 
 # Read from Milvus Vector Store
 embeddings = NVIDIAEmbeddings(model=EMBEDDING_MODEL)
-vectorstore = Milvus(connection_args={"host": HOST, "port": PORT},
+vectorstore = Milvus(
+    connection_args={"host": HOST, "port": PORT},
     collection_name=COLLECTION_NAME,
-    embedding_function=embeddings
+    embedding_function=embeddings,
 )
 retriever = vectorstore.as_retriever()
 
@@ -64,11 +67,15 @@ chain = chain.with_types(input_type=Question)
 
 
 def _ingest(url: str) -> dict:
+    """Load and ingest the PDF file from the URL"""
+
     loader = PyPDFLoader(url)
     data = loader.load()
 
     # Split docs
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+    text_splitter = CharacterTextSplitter(
+        chunk_size=INGESTION_CHUNK_SIZE, chunk_overlap=INGESTION_CHUNK_OVERLAP
+    )
     docs = text_splitter.split_documents(data)
 
     # Insert the documents in Milvus Vector Store
